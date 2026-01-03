@@ -1,31 +1,33 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+require("dotenv").config();
 
-const productRoutes = require('./routes/productRoutes');
-const orderRoutes = require('./routes/orderRoutes');
+const productRoutes = require("./routes/productRoutes");
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
-const mongoUri = process.env.MONGODB_URI;
-if (!mongoUri) {
-  console.error('MONGODB_URI mungon në .env');
-  process.exit(1);
-}
-mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(()=>console.log('✅ MongoDB connected'))
-  .catch(err=>{ console.error('MongoDB connect error:', err); process.exit(1); });
+// ROUTES
+app.use("/api/products", productRoutes);
 
-// Routes
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
+// TEST ROUTE (SHUMË E RËNDËSISHME)
+app.get("/", (req, res) => {
+  res.send("API is running");
+});
 
-// Health-check
-app.get('/', (req,res) => res.send({ ok: true, message: 'Orendion Backend' }));
+const PORT = process.env.PORT || 4000;
 
-const port = process.env.PORT || 4000;
-app.listen(port, ()=> console.log(`🚀 Server running on port ${port}`));
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB connected");
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error(err);
+  });
