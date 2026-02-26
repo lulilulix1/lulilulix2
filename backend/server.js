@@ -4,19 +4,28 @@ const cors = require("cors");
 require("dotenv").config();
 
 const productRoutes = require("./routes/productRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 
-const app = express();
+const app = express();  // ← APP DUHET DEKLARUAR FILLIMISHT
+
+// Middleware për të loguar çdo kërkesë (TANI PAS APP)
+app.use((req, res, next) => {
+  console.log(`📨 ${req.method} ${req.url} - ${new Date().toISOString()}`);
+  console.log('Headers:', req.headers);
+  next();
+});
 
 app.use(cors());
 app.use(express.json());
 
-// ROUTES
-app.use("/api/products", productRoutes);
-
-// TEST ROUTE (SHUMË E RËNDËSISHME)
+// TEST ROUTE
 app.get("/", (req, res) => {
   res.send("API is running");
 });
+
+// ROUTES
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);  // ← KJO TANI BRENDA
 
 const PORT = process.env.PORT || 4000;
 
@@ -31,5 +40,3 @@ mongoose
   .catch((err) => {
     console.error(err);
   });
-  app.use("/api/orders", require("./routes/orderRoutes"));
-
