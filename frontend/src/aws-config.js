@@ -1,16 +1,14 @@
-const awsExports = {
+const awsconfig = {
   Auth: {
-    region: process.env.REACT_APP_AWS_REGION,
-    userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-    userPoolWebClientId: process.env.REACT_APP_COGNITO_APP_CLIENT_ID,
-    identityPoolId: process.env.REACT_APP_IDENTITY_POOL_ID,
-  },
-  Storage: {
-    AWSS3: {
-      bucket: process.env.REACT_APP_S3_BUCKET,
-      region: process.env.REACT_APP_AWS_REGION,
+    Cognito: {
+      userPoolId: "us-east-1_tKqAhDysX",
+      userPoolClientId: "bb0qig9og0vi6acode4hqoo1h",
+      loginWith: {
+        username: true,
+        email: true
+      }
     }
   }
 };
 
-export default awsExports;
+export default awsconfig;

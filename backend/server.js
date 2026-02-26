@@ -31,3 +31,5 @@ mongoose
   .catch((err) => {
     console.error(err);
   });
+  app.use("/api/orders", require("./routes/orderRoutes"));
+

@@ -6,13 +6,10 @@ const ProductController = require("../controllers/ProductController");
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// TEST ROUTE (KRITIKE)
-router.get("/test", (req, res) => {
-  res.json({ message: "products route works" });
-});
-
-// REAL ROUTES
+// GET products
 router.get("/", ProductController.getProducts);
+
+// CREATE product
 router.post("/", upload.single("image"), ProductController.createProduct);
 
 module.exports = router;

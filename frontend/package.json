@@ -8,10 +8,11 @@
     "serve-build": "npx serve -s build"
   },
   "dependencies": {
-    "aws-amplify": "^5.3.6",
+    "@aws-amplify/ui-react": "^6.14.0",
+    "aws-amplify": "^6.16.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.14.1",
+    "react-router-dom": "^6.30.3",
     "uuid": "^12.0.0"
   },
   "devDependencies": {

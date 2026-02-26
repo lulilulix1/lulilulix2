@@ -1,32 +1,21 @@
-// src/App.js
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import { Amplify } from "aws-amplify";
+import awsconfig from "./aws-config";
+
+import Products from "./components/Products";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
+
+// CONFIGURE AMPLIFY (vetëm këtu!)
+Amplify.configure(awsconfig);
 
 function App() {
   return (
     <Router>
       <Routes>
-
-        {/* Home */}
-        <Route path="/" element={<Home />} />
-
-        {/* Login admin */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-
-        {/* Admin Dashboard i mbrojtur */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-
+        <Route path="/" element={<Products />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );

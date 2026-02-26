@@ -1,7 +1,13 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const OrderSchema = new mongoose.Schema({
   orderNumber: { type: String, required: true },
+
+  user: {
+    sub: String,     // Cognito user id
+    email: String
+  },
+
   customer: {
     emri: String,
     mbiemri: String,
@@ -11,6 +17,7 @@ const OrderSchema = new mongoose.Schema({
     qyteti: String,
     shteti: String
   },
+
   products: [
     {
       productId: String,
@@ -20,9 +27,10 @@ const OrderSchema = new mongoose.Schema({
       supplier: String
     }
   ],
+
   total: Number,
-  status: { type: String, default: 'ne-pritje' },
+  status: { type: String, default: "ne-pritje" },
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Order', OrderSchema);
+module.exports = mongoose.model("Order", OrderSchema);
