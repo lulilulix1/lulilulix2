@@ -4,18 +4,23 @@ const cors = require("cors");
 require("dotenv").config();
 
 const productRoutes = require("./routes/productRoutes");
-const orderRoutes = require("./routes/orderRoutes"); // ← Shto këtë
+const orderRoutes = require("./routes/orderRoutes");
 
 const app = express();
 
-app.use(cors());
+// CORS i konfiguruar si duhet (lejon domain-in tënd)
+app.use(cors({
+  origin: ['https://orendion.com', 'https://www.orendion.com', 'http://localhost:3000'],
+  credentials: true
+}));
+
 app.use(express.json());
 
-// ROUTES - TË GJITHA PARA MONGODB
+// ROUTES
 app.use("/api/products", productRoutes);
-app.use("/api/orders", orderRoutes); // ← LËVIZUR KËTU (para mongoose)
+app.use("/api/orders", orderRoutes);
 
-// HEALTH CHECK - I RI
+// HEALTH CHECK
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
@@ -36,5 +41,5 @@ mongoose
     });
   })
   .catch((err) => {
-    console.error(err);
+    console.error("MongoDB connection error:", err);
   });
