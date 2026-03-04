@@ -10,13 +10,37 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    category: String,
-    supplier: String,
-    description: String,
-
-    // KJO MUNGONTE
+    category: {
+      type: String,
+      default: '',
+    },
+    supplier: {
+      type: String,
+      default: '',
+    },
+    description: {
+      type: String,
+      default: '',
+    },
     image: {
-      type: String, // URL e plotë nga S3
+      type: String,
+      default: '',
+    },
+    images: {
+      type: [String],
+      default: [],
+    },
+    stock: {
+      type: Number,
+      default: 0,
+    },
+    isOnSale: {
+      type: Boolean,
+      default: false,
+    },
+    salePrice: {
+      type: Number,
+      default: null,
     },
   },
   { timestamps: true }

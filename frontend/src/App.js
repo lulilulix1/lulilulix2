@@ -6,7 +6,8 @@ import RegisterPage from "./pages/RegisterPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import CheckoutPage from "./pages/CheckoutPage";
-import CategoryPage from "./pages/CategoryPage"; // ← Shto këtë
+import CategoryPage from "./pages/CategoryPage";
+import ProductPage from "./pages/ProductPage"; // ← Shto këtë
 import Header from "./components/customer/Header";
 import Footer from "./components/customer/Footer";
 
@@ -28,8 +29,9 @@ function App() {
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
             
-            {/* PËR KATEGORITË */}
+            {/* PËR KATEGORITË DHE PRODUKTET */}
             <Route path="/kategoria/:categoryName" element={<CategoryPage />} />
+            <Route path="/produkti/:id" element={<ProductPage />} /> {/* ← Shto këtë */}
           </Routes>
         </main>
         <Footer />

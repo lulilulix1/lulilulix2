@@ -1,15 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
-const ProductController = require("../controllers/ProductController");
+const productCtrl = require("../controllers/productController");
+const adminAuth = require("../middleware/adminAuth");
+const { upload } = require("../utils/s3Upload");
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+console.log("🚦 PRODUCT ROUTES LOADING...");
+console.log("📦 Imported controller functions:");
+console.log("getAll:", typeof productCtrl.getAll);
+console.log("getProductById:", typeof productCtrl.getProductById);
+console.log("createProduct:", typeof productCtrl.createProduct);
+console.log("updateProduct:", typeof productCtrl.updateProduct);
+console.log("deleteProduct:", typeof productCtrl.deleteProduct);
 
-// GET products
-router.get("/", ProductController.getProducts);
+// Routes
+router.get("/", productCtrl.getAll);
+router.get("/:id", productCtrl.getProductById);
+router.post("/", adminAuth, upload.array('images', 5), productCtrl.createProduct);
+router.put("/:id", adminAuth, upload.array('images', 5), productCtrl.updateProduct);
+router.delete("/:id", adminAuth, productCtrl.deleteProduct);
 
-// CREATE product
-router.post("/", upload.single("image"), ProductController.createProduct);
-
+console.log("✅ Routes defined");
 module.exports = router;

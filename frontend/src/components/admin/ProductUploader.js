@@ -11,11 +11,11 @@ export default function ProductUploader({ onProductCreated }) {
     stock: '0',
     isOnSale: false,
     salePrice: '',
-    image: null
+    images: [] // tani është array
   });
 
   const [uploading, setUploading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreviews, setImagePreviews] = useState([]);
 
   const categories = [
     'Dhoma e ndejes',
@@ -34,36 +34,35 @@ export default function ProductUploader({ onProductCreated }) {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    console.log('File selected:', file); // DEBUG
+    const files = Array.from(e.target.files);
+    setForm({ ...form, images: files });
     
-    if (file) {
-      setForm({ ...form, image: file });
-      
-      // Krijo preview
+    // Krijo preview për të gjitha fotot
+    const previews = [];
+    files.forEach(file => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
+        previews.push(reader.result);
+        if (previews.length === files.length) {
+          setImagePreviews(previews);
+        }
       };
       reader.readAsDataURL(file);
-    } else {
-      setForm({ ...form, image: null });
-      setImagePreview(null);
-    }
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Verifiko nëse ka foto
-    if (!form.image) {
-      alert('Zgjidh një foto për produktin!');
+    const action = e.nativeEvent.submitter?.value || 'add';
+    
+    if (form.images.length === 0) {
+      alert('Zgjidh të paktën një foto!');
       return;
     }
     
     setUploading(true);
 
-    // Krijo FormData
     const formData = new FormData();
     formData.append('name', form.name);
     formData.append('price', form.price);
@@ -77,44 +76,50 @@ export default function ProductUploader({ onProductCreated }) {
       formData.append('salePrice', form.salePrice);
     }
     
-    // Shto foton (shumë e rëndësishme!)
-    formData.append('image', form.image);
-    
-    // DEBUG: Shiko çfarë po dërgohet
-    console.log('=== FORM DATA ===');
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ':', pair[1]);
-    }
+    // Shto të gjitha fotot
+    form.images.forEach((image, index) => {
+      formData.append('images', image);
+    });
 
     try {
       const res = await fetch(`${API_URL}/api/products`, {
         method: 'POST',
         headers: {
           'x-admin-pass': 'luli123'
-          // MOS VENDOS 'Content-Type' - FormData e vendos vetë!
         },
         body: formData
       });
 
       const data = await res.json();
-      console.log('Response:', data);
       
       if (res.ok) {
-        alert(`✅ Produkti "${form.name}" u shtua me sukses!`);
+        alert(`✅ "${form.name}" u shtua me ${form.images.length} foto!`);
         
-        // Pastro formularin
-        setForm({
-          name: '',
-          price: '',
-          category: 'Dhoma e ndejes',
-          supplier: '',
-          description: '',
-          stock: '0',
-          isOnSale: false,
-          salePrice: '',
-          image: null
-        });
-        setImagePreview(null);
+        if (action === 'addAnother') {
+          // Pastro vetëm fotot dhe emrin/çmimin/përshkrimin
+          setForm({
+            ...form,
+            name: '',
+            price: '',
+            description: '',
+            images: []
+          });
+          setImagePreviews([]);
+        } else {
+          // Pastro gjithçka
+          setForm({
+            name: '',
+            price: '',
+            category: 'Dhoma e ndejes',
+            supplier: '',
+            description: '',
+            stock: '0',
+            isOnSale: false,
+            salePrice: '',
+            images: []
+          });
+          setImagePreviews([]);
+        }
         
         if (onProductCreated) onProductCreated(data);
       } else {
@@ -122,7 +127,7 @@ export default function ProductUploader({ onProductCreated }) {
       }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('❌ Gabim gjatë shtimit të produktit');
+      alert('❌ Gabim gjatë shtimit');
     } finally {
       setUploading(false);
     }
@@ -298,15 +303,16 @@ export default function ProductUploader({ onProductCreated }) {
           />
         </div>
 
-        {/* Foto - KJO ËSHTË PJESA MË E RËNDËSISHME */}
+        {/* Fotot */}
         <div style={{ marginBottom: '15px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-            Foto e produktit *
+            Fotot e produktit (zgjidh disa) *
           </label>
           <input
             type="file"
-            name="image"
+            name="images"
             accept="image/*"
+            multiple
             onChange={handleImageChange}
             required
             style={{
@@ -316,41 +322,75 @@ export default function ProductUploader({ onProductCreated }) {
               borderRadius: '4px'
             }}
           />
-          {imagePreview && (
-            <div style={{ marginTop: '10px' }}>
-              <img
-                src={imagePreview}
-                alt="Preview"
-                style={{
-                  maxWidth: '200px',
-                  maxHeight: '200px',
-                  borderRadius: '4px',
-                  border: '1px solid #ddd'
-                }}
-              />
+          {imagePreviews.length > 0 && (
+            <div style={{ 
+              marginTop: '10px', 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+              gap: '10px'
+            }}>
+              {imagePreviews.map((preview, index) => (
+                <img
+                  key={index}
+                  src={preview}
+                  alt={`Preview ${index + 1}`}
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    objectFit: 'cover',
+                    borderRadius: '4px',
+                    border: '1px solid #ddd'
+                  }}
+                />
+              ))}
             </div>
           )}
         </div>
 
-        {/* Butoni */}
-        <button
-          type="submit"
-          disabled={uploading}
-          style={{
-            width: '100%',
-            padding: '12px',
-            background: '#27ae60',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: uploading ? 'not-allowed' : 'pointer',
-            opacity: uploading ? 0.7 : 1
-          }}
-        >
-          {uploading ? 'Duke shtuar...' : '📤 Shto Produktin'}
-        </button>
+        {/* Dy butonat */}
+        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          <button
+            type="submit"
+            name="action"
+            value="add"
+            disabled={uploading}
+            style={{
+              flex: 1,
+              padding: '12px',
+              background: '#27ae60',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: uploading ? 'not-allowed' : 'pointer',
+              opacity: uploading ? 0.7 : 1
+            }}
+          >
+            {uploading ? 'Duke shtuar...' : '✅ Shto Produktin'}
+          </button>
+          
+          <button
+            type="submit"
+            name="action"
+            value="addAnother"
+            disabled={uploading}
+            style={{
+              flex: 1,
+              padding: '12px',
+              background: '#3498db',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: uploading ? 'not-allowed' : 'pointer',
+              opacity: uploading ? 0.7 : 1
+            }}
+          >
+            {uploading ? 'Duke shtuar...' : '➕ Shto dhe vazhdo'}
+          </button>
+        </div>
       </form>
     </div>
   );

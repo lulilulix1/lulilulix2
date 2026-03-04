@@ -8,7 +8,7 @@ const orderRoutes = require("./routes/orderRoutes");
 
 const app = express();
 
-// CORS i konfiguruar si duhet (lejon domain-in tënd)
+// CORS i konfiguruar
 app.use(cors({
   origin: ['https://orendion.com', 'https://www.orendion.com', 'http://localhost:3000'],
   credentials: true

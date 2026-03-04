@@ -4,15 +4,22 @@ const orderCtrl = require("../controllers/orderController");
 const adminAuth = require("../middleware/adminAuth");
 const cognitoAuth = require("../middleware/cognitoAuth");
 
-// Routes publike (anonime)
-router.post("/", orderCtrl.create);  // 👈 ANONIME! Pa cognitoAuth
+// ==================== Rrugët publike (anonime) ====================
+// Krijimi i porosisë pa login (checkout anonim)
+router.post("/", orderCtrl.create);
+
+// Shiko detajet e porosisë me numrin e porosisë (për klientin)
 router.get("/track/:number", orderCtrl.getByOrderNumber);
 
-// Routes për përdorues të loguar
+// ==================== Rrugët për klientë të regjistruar (Cognito) ====================
+// Listo porositë e klientit të loguar
 router.get("/my", cognitoAuth, orderCtrl.listMyOrders);
 
-// Routes për admin
+// ==================== Rrugët për admin ====================
+// Listo të gjitha porositë (admin)
 router.get("/", adminAuth, orderCtrl.list);
+
+// Përditëso statusin e porosisë (admin)
 router.put("/:id/status", adminAuth, orderCtrl.updateStatus);
 
 module.exports = router;
