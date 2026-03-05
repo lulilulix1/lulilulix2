@@ -1,6 +1,6 @@
 const Product = require("../models/Product");
 
-console.log("🚀 LOADING productController.js...");
+console.log("🚀 LOADING ProductController.js...");
 
 // ==================== GET ====================
 exports.getAll = async (req, res) => {
