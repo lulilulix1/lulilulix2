@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const productCtrl = require("../controllers/productController");
+const productCtrl = require("../controllers/ProductController");
 const adminAuth = require("../middleware/adminAuth");
 const { upload } = require("../utils/s3Upload");
 
