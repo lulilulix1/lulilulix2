@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const productCtrl = require("../controllers/productController");
+const productCtrl = require("../controllers/ProductController");
 const adminAuth = require("../middleware/adminAuth");
 const { upload } = require("../utils/s3Upload");
 
@@ -20,4 +20,5 @@ router.put("/:id", adminAuth, upload.array('images', 5), productCtrl.updateProdu
 router.delete("/:id", adminAuth, productCtrl.deleteProduct);
 
 console.log("✅ Routes defined");
+module.exports = router;
 module.exports = router;
