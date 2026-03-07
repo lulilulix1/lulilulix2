@@ -17,7 +17,6 @@ const upload = multer({
   storage: multerS3({
     s3: s3,
     bucket: process.env.AWS_S3_BUCKET,
-    acl: 'public-read',
     metadata: function (req, file, cb) {
       cb(null, { fieldName: file.fieldname });
     },
@@ -37,10 +36,9 @@ const uploadToS3 = async (file) => {
     Key: fileKey,
     Body: file.buffer,
     ContentType: file.mimetype,
-    ACL: 'public-read',
   };
   await s3.send(new PutObjectCommand(params));
-  return `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`;
+  return `https://d1ncy56ya02jf4.cloudfront.net/${fileKey}`;
 };
 
 module.exports = { upload, uploadToS3 };
