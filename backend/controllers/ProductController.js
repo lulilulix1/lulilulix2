@@ -1,10 +1,8 @@
 const Product = require("../models/Product");
-
-console.log("🚀 LOADING ProductController.js...");
+const uploadToS3 = require("../utils/s3Upload");
 
 // ==================== GET ====================
 exports.getAll = async (req, res) => {
-  console.log("✅ getAll function called");
   try {
     const products = await Product.find().sort({ createdAt: -1 });
     res.json(products);
@@ -12,10 +10,8 @@ exports.getAll = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-console.log("✅ getAll exported:", typeof exports.getAll);
 
 exports.getProductById = async (req, res) => {
-  console.log("✅ getProductById function called");
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: "Produkti nuk u gjet" });
@@ -24,19 +20,22 @@ exports.getProductById = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-console.log("✅ getProductById exported:", typeof exports.getProductById);
 
 // ==================== POST ====================
 exports.createProduct = async (req, res) => {
-  console.log("✅ createProduct function called");
   try {
     const { name, price, category, supplier, description, stock, isOnSale, salePrice } = req.body;
-    
+    const files = req.files; // vjen nga multer
+
     let imageUrls = [];
-    if (req.files && req.files.length > 0) {
-      imageUrls = req.files.map(file => file.location);
+    if (files && files.length > 0) {
+      // Ngarko secilën foto në S3 duke përdorur funksionin e thjeshtë
+      for (const file of files) {
+        const url = await uploadToS3(file);
+        imageUrls.push(url);
+      }
     }
-    
+
     const product = new Product({
       name,
       price: parseFloat(price),
@@ -49,28 +48,32 @@ exports.createProduct = async (req, res) => {
       images: imageUrls,
       image: imageUrls[0] || '',
     });
-    
+
     const saved = await product.save();
     res.status(201).json(saved);
   } catch (err) {
+    console.error("Error creating product:", err);
     res.status(500).json({ error: err.message });
   }
 };
-console.log("✅ createProduct exported:", typeof exports.createProduct);
 
 // ==================== PUT ====================
 exports.updateProduct = async (req, res) => {
-  console.log("✅ updateProduct function called");
   try {
     const { id } = req.params;
     const updates = req.body;
-    
-    if (req.files && req.files.length > 0) {
-      const newImageUrls = req.files.map(file => file.location);
+    const files = req.files;
+
+    if (files && files.length > 0) {
+      const newImageUrls = [];
+      for (const file of files) {
+        const url = await uploadToS3(file);
+        newImageUrls.push(url);
+      }
       updates.images = newImageUrls;
       updates.image = newImageUrls[0] || '';
     }
-    
+
     const updated = await Product.findByIdAndUpdate(id, updates, { new: true });
     if (!updated) return res.status(404).json({ error: "Produkti nuk u gjet" });
     res.json(updated);
@@ -78,11 +81,9 @@ exports.updateProduct = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-console.log("✅ updateProduct exported:", typeof exports.updateProduct);
 
 // ==================== DELETE ====================
 exports.deleteProduct = async (req, res) => {
-  console.log("✅ deleteProduct function called");
   try {
     const { id } = req.params;
     const deleted = await Product.findByIdAndDelete(id);
@@ -92,6 +93,3 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-console.log("✅ deleteProduct exported:", typeof exports.deleteProduct);
-
-console.log("🎯 ALL EXPORTS:", Object.keys(exports));

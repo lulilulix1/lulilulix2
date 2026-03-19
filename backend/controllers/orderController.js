@@ -1,4 +1,5 @@
 const Order = require("../models/Order");
+const sendTelegram = require("../utils/telegramService");
 
 // KRIJO POROSI (anonim ose me login)
 exports.create = async (req, res) => {
@@ -17,13 +18,36 @@ exports.create = async (req, res) => {
       paymentMethod: paymentMethod || 'para-ne-dore',
       subtotal,
       total,
-      // Nëse përdoruesi është i loguar (Cognito), shto userId
       userId: req.user?.sub || null
     });
 
+    // SAVE në MongoDB
     await order.save();
 
-    // Kthe porosinë (pa sensitiv)
+    // ===== TELEGRAM NOTIFICATION =====
+    const productList = products
+      .map(p => `${p.name} x${p.quantity}`)
+      .join("\n");
+
+    const message = `
+🛒 POROSI E RE
+
+Nr: ${order.orderNumber}
+
+👤 ${customer.emri} ${customer.mbiemri}
+📞 ${customer.telefoni}
+📍 ${customer.qyteti}
+
+📦 Produkte:
+${productList}
+
+💰 Totali: €${total}
+`;
+
+    sendTelegram(message);
+    // ===== END TELEGRAM =====
+
+    // Response
     res.status(201).json({
       success: true,
       orderNumber: order.orderNumber,
@@ -63,11 +87,13 @@ exports.listMyOrders = async (req, res) => {
 exports.updateStatus = async (req, res) => {
   try {
     const { status } = req.body;
+
     const order = await Order.findByIdAndUpdate(
       req.params.id,
       { status, updatedAt: new Date() },
       { new: true }
     );
+
     res.json(order);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -78,9 +104,11 @@ exports.updateStatus = async (req, res) => {
 exports.getByOrderNumber = async (req, res) => {
   try {
     const order = await Order.findOne({ orderNumber: req.params.number });
+
     if (!order) {
       return res.status(404).json({ error: "Porosia nuk u gjet" });
     }
+
     res.json(order);
   } catch (err) {
     res.status(500).json({ error: err.message });
