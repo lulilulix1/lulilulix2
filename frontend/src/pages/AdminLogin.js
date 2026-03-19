@@ -1,41 +1,49 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../config';
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Password i thjeshtë për admin
-    if (password === 'luli123') {
-      localStorage.setItem('isAdmin', 'true');
-      navigate('/admin');
-    } else {
-      setError('Fjalëkalim i gabuar');
+    try {
+      const res = await fetch(`${API_URL}/api/products`, {
+        headers: {
+          'x-admin-pass': password
+        }
+      });
+      
+      if (res.ok) {
+        localStorage.setItem('adminAuthenticated', 'true');
+        navigate('/admin');
+      } else {
+        setError('Fjalëkalimi i gabuar');
+      }
+    } catch (err) {
+      setError('Gabim në lidhje me serverin');
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
-      <h2 style={{ textAlign: 'center' }}>Admin Login</h2>
-      
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      
-      <form onSubmit={handleSubmit}>
-        <input
-          type="password"
-          placeholder="Fjalëkalimi"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: '10px', margin: '10px 0' }}
-        />
-        <button type="submit" style={{ width: '100%', padding: '10px', background: '#27ae60', color: 'white' }}>
-          Kyçu si Admin
-        </button>
-      </form>
+    <div className="admin-login-container">
+      <div className="admin-login-box">
+        <h2>Admin Login</h2>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <input
+            type="password"
+            placeholder="Fjalëkalimi"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Kyçu</button>
+        </form>
+      </div>
     </div>
   );
 }

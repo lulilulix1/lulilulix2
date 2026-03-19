@@ -11,7 +11,7 @@ export default function ProductUploader({ onProductCreated }) {
     stock: '0',
     isOnSale: false,
     salePrice: '',
-    images: [] // tani është array
+    images: []
   });
 
   const [uploading, setUploading] = useState(false);
@@ -22,7 +22,8 @@ export default function ProductUploader({ onProductCreated }) {
     'Dhoma e gjumit',
     'Kuzhina',
     'Zyra',
-    'Aksesorë'
+    'Aksesorë',
+    'Produkte speciale'  // ← KATEGORIA E RE
   ];
 
   const handleInputChange = (e) => {
@@ -37,7 +38,6 @@ export default function ProductUploader({ onProductCreated }) {
     const files = Array.from(e.target.files);
     setForm({ ...form, images: files });
     
-    // Krijo preview për të gjitha fotot
     const previews = [];
     files.forEach(file => {
       const reader = new FileReader();
@@ -76,8 +76,7 @@ export default function ProductUploader({ onProductCreated }) {
       formData.append('salePrice', form.salePrice);
     }
     
-    // Shto të gjitha fotot
-    form.images.forEach((image, index) => {
+    form.images.forEach((image) => {
       formData.append('images', image);
     });
 
@@ -93,10 +92,9 @@ export default function ProductUploader({ onProductCreated }) {
       const data = await res.json();
       
       if (res.ok) {
-        alert(`✅ "${form.name}" u shtua me ${form.images.length} foto!`);
+        alert(`✅ "${form.name}" u shtua në kategorinë "${form.category}"!`);
         
         if (action === 'addAnother') {
-          // Pastro vetëm fotot dhe emrin/çmimin/përshkrimin
           setForm({
             ...form,
             name: '',
@@ -106,7 +104,6 @@ export default function ProductUploader({ onProductCreated }) {
           });
           setImagePreviews([]);
         } else {
-          // Pastro gjithçka
           setForm({
             name: '',
             price: '',
@@ -165,7 +162,7 @@ export default function ProductUploader({ onProductCreated }) {
           />
         </div>
 
-        {/* Kategoria */}
+        {/* Kategoria - TANI PËRFSHIN "PRODUKTE SPECIALE" */}
         <div style={{ marginBottom: '15px' }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
             Kategoria *

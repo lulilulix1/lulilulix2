@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useShoppingCart } from "../../context/ShoppingCartContext";
 import API_URL from "../../config";
 import { useNavigate } from "react-router-dom";
+import { fetchAuthSession } from "aws-amplify/auth"; // ← IMPORTI I SAKTË!
 
 export default function Checkout() {
   const { cart, getCartTotal, clearCart } = useShoppingCart();
@@ -44,13 +45,35 @@ export default function Checkout() {
       })),
       paymentMethod,
       subtotal: getCartTotal(),
-      total: getCartTotal() // Pa TVSH për momentin
+      total: getCartTotal()
     };
 
     try {
+      // --- MARRIJA E TOKEN-IT NGA AMPLIFY (FALAS) ---
+      let token = null;
+      try {
+        const session = await fetchAuthSession();
+        // Token-i kthehet si objekt, e kthejmë në string
+        token = session.tokens?.idToken?.toString(); 
+        console.log("Përdorues i loguar, token u mor");
+      } catch (authError) {
+        // Nëse nuk ka session, vazhdohet si anonim (kjo është normale)
+        console.log("Përdorues anonim, vazhdohet pa token");
+      }
+      // --- FUNDI I MARRJES SË TOKEN-IT ---
+
+      const headers = {
+        "Content-Type": "application/json"
+      };
+      
+      // Shto token-in vetëm nëse ekziston
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const res = await fetch(`${API_URL}/api/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         body: JSON.stringify(orderData)
       });
 
@@ -227,7 +250,7 @@ export default function Checkout() {
               opacity: loading ? 0.7 : 1
             }}
           >
-            {loading ? "Dhe duke procesuar..." : "KONFIRMO POROSINË"}
+            {loading ? "Duke procesuar..." : "KONFIRMO POROSINË"}
           </button>
         </div>
       </form>
