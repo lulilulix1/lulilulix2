@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const OrderSchema = new mongoose.Schema({
-  orderNumber: { type: String, required: true, unique: true },
+  orderNumber: { type: String, unique: true },
 
-  // Klienti (anonim ose i regjistruar)
+  // Klienti
   customer: {
     emri: { type: String, required: true },
     mbiemri: { type: String, required: true },
@@ -14,7 +14,7 @@ const OrderSchema = new mongoose.Schema({
     shteti: { type: String, default: "Kosovë" }
   },
 
-  // Produktet e porositura
+  // Produktet
   products: [
     {
       productId: { type: String, required: true },
@@ -39,24 +39,25 @@ const OrderSchema = new mongoose.Schema({
 
   // Totali
   subtotal: { type: Number, required: true },
-  total: { type: Number, required: true }, // Me TVSH nëse ka
+  total: { type: Number, required: true },
 
-  // Statusi i porosisë
+  // Statusi
   status: {
     type: String,
     enum: ['ne-pritje', 'konfirmuar', 'dërguar', 'përfunduar', 'anuluar'],
     default: 'ne-pritje'
   },
 
-  // Opsionale: nëse klienti është i regjistruar
   userId: { type: String, default: null },
 
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
 
-// Gjenero numrin unik të porosisë para ruajtjes
+
+// 🔥 GJENERIMI PARA VALIDATION
 OrderSchema.pre('save', async function(next) {
+  console.log("🔥🔥🔥 PRE-SAVE HOOK IS RUNNING! Order number:", this.orderNumber); // ← Shto këtë
   if (!this.orderNumber) {
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
@@ -64,6 +65,7 @@ OrderSchema.pre('save', async function(next) {
     const day = date.getDate().toString().padStart(2, '0');
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     this.orderNumber = `ORD-${year}${month}${day}-${random}`;
+    console.log("✅ Generated order number:", this.orderNumber);
   }
   next();
 });
