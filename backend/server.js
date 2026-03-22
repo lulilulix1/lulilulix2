@@ -11,7 +11,8 @@ const app = express();
 // CORS i konfiguruar
 app.use(cors({
   origin: ['https://orendion.com', 'https://www.orendion.com', 'http://localhost:3000'],
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'] // ← Shto Authorization
 }));
 
 app.use(express.json());
