@@ -7,7 +7,8 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import CheckoutPage from "./pages/CheckoutPage";
 import CategoryPage from "./pages/CategoryPage";
-import ProductPage from "./pages/ProductPage"; // ← Shto këtë
+import ProductPage from "./pages/ProductPage";
+import AccountPage from "./pages/AccountPage"; // ← Shto këtë
 import Header from "./components/customer/Header";
 import Footer from "./components/customer/Footer";
 
@@ -24,6 +25,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/account" element={<AccountPage />} /> {/* ← Shto këtë */}
             
             {/* PËR ADMIN */}
             <Route path="/admin-login" element={<AdminLogin />} />
@@ -31,7 +33,7 @@ function App() {
             
             {/* PËR KATEGORITË DHE PRODUKTET */}
             <Route path="/kategoria/:categoryName" element={<CategoryPage />} />
-            <Route path="/produkti/:id" element={<ProductPage />} /> {/* ← Shto këtë */}
+            <Route path="/produkti/:id" element={<ProductPage />} />
           </Routes>
         </main>
         <Footer />

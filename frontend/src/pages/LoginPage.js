@@ -16,7 +16,8 @@ export default function LoginPage() {
 
     try {
       await signIn({ username: email, password });
-      navigate('/account'); // Faqja e klientit
+      // Pas kyçjes së suksesshme, shko te faqja e llogarisë
+      navigate('/account');
     } catch (err) {
       setError('Email ose fjalëkalim i gabuar');
     } finally {

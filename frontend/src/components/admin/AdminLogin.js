@@ -1,15 +1,54 @@
 import React, { useState } from 'react';
-export default function AdminLogin({onSuccess}){
-  const [password,setPassword]=useState('');
-  const ADMIN_PASS=(process.env.REACT_APP_ADMIN_PASSWORD||'luli123').trim();
-  const handle=(e)=>{ e.preventDefault(); if(password===ADMIN_PASS){ localStorage.setItem('isAdmin','1'); if(onSuccess) onSuccess(); } else alert('Fjalëkalim i gabuar'); };
+import { useNavigate } from 'react-router-dom';
+
+export default function AdminLogin() {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    console.log("Password entered:", password); // Debug
+    
+    if (password === 'luli123') {
+      localStorage.setItem('isAdmin', 'true');
+      console.log("Admin logged in, redirecting...");
+      navigate('/admin');
+    } else {
+      setError('Fjalëkalim i gabuar');
+    }
+  };
+
   return (
-    <div style={{maxWidth:420,margin:'40px auto',padding:20,background:'#fff',borderRadius:8}}>
-      <h3>Hyrje Admin</h3>
-      <form onSubmit={handle}>
-        <input type='password' value={password} onChange={e=>setPassword(e.target.value)} placeholder='Fjalëkalimi' style={{width:'100%',padding:8}} />
-        <div style={{marginTop:10}}><button type='submit' style={{padding:'8px 12px'}}>Hyr</button></div>
-        <div style={{marginTop:10,fontSize:12,color:'#666'}}>Demo password: <strong>luli123</strong></div>
+    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
+      <h2 style={{ textAlign: 'center' }}>Admin Login</h2>
+      
+      {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+      
+      <form onSubmit={handleSubmit}>
+        <input
+          type="password"
+          placeholder="Fjalëkalimi"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          style={{ width: '100%', padding: '10px', margin: '10px 0' }}
+        />
+        <button 
+          type="submit" 
+          style={{ 
+            width: '100%', 
+            padding: '10px', 
+            background: '#27ae60', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Kyçu si Admin
+        </button>
       </form>
     </div>
   );
