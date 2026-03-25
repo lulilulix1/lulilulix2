@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
-const sendTelegram = require("../utils/telegramService");
+// për momentin po e komentojmë Telegram-in krejt
+// const sendTelegram = require("../utils/telegramService");
 
 // KRIJO POROSI (anonim ose me login)
 exports.create = async (req, res) => {
@@ -33,13 +34,13 @@ exports.create = async (req, res) => {
 
     console.log("✅ ORDER SAVED:", savedOrder);
 
-    // ===== TELEGRAM (AKTIVIZUAR) =====
-    try {
-      const productList = products
-        .map(p => `${p.name} x${p.quantity}`)
-        .join("\n");
+    // ===== TELEGRAM (OFF për debug) =====
+    /*
+    const productList = products
+      .map(p => `${p.name} x${p.quantity}`)
+      .join("\n");
 
-      const message = `
+    const message = `
 🛒 POROSI E RE
 
 Nr: ${savedOrder.orderNumber}
@@ -54,12 +55,8 @@ ${productList}
 💰 Totali: €${total}
 `;
 
-      await sendTelegram(message);
-      console.log("✅ Telegram notification sent for order:", savedOrder.orderNumber);
-    } catch (telegramError) {
-      console.error("❌ Telegram notification failed:", telegramError.message);
-      // Nuk e ndalojmë procesin nëse Telegram dështon
-    }
+    sendTelegram(message);
+    */
     // ===== END TELEGRAM =====
 
     // Response
@@ -93,7 +90,7 @@ exports.list = async (req, res) => {
   }
 };
 
-// LISTO POROSITË E PËRDORUESIT (nëse është i loguar)
+// LISTO POROSITË E PËRDORUESIT
 exports.listMyOrders = async (req, res) => {
   try {
     if (!req.user?.sub) {
@@ -109,7 +106,7 @@ exports.listMyOrders = async (req, res) => {
   }
 };
 
-// PËRDITËSO STATUSIN (admin)
+// PËRDITËSO STATUSIN
 exports.updateStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -120,10 +117,6 @@ exports.updateStatus = async (req, res) => {
       { new: true }
     );
 
-    if (!order) {
-      return res.status(404).json({ error: "Porosia nuk u gjet" });
-    }
-
     res.json(order);
 
   } catch (err) {
@@ -132,7 +125,7 @@ exports.updateStatus = async (req, res) => {
   }
 };
 
-// SHIKO DETAJET E POROSISË (për klientin)
+// SHIKO DETAJET
 exports.getByOrderNumber = async (req, res) => {
   try {
     const order = await Order.findOne({ orderNumber: req.params.number });

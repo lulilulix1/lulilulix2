@@ -8,8 +8,12 @@ const orderRoutes = require("./routes/orderRoutes");
 
 const app = express();
 
-// CORS i thjeshtë për testim – lejon çdo header dhe çdo origin
-app.use(cors());
+// CORS i konfiguruar
+app.use(cors({
+  origin: ['https://orendion.com', 'https://www.orendion.com', 'http://localhost:3000'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'] // ← Shto Authorization
+}));
 
 app.use(express.json());
 
