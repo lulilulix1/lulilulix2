@@ -12,7 +12,7 @@ const app = express();
 app.use(cors({
   origin: ['https://orendion.com', 'https://www.orendion.com', 'http://localhost:3000'],
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'] // ← Shto Authorization
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-pass']
 }));
 
 app.use(express.json());
