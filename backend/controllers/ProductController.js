@@ -1,5 +1,4 @@
 const Product = require("../models/Product");
-const uploadToS3 = require("../utils/s3Upload");
 
 // ==================== GET ====================
 exports.getAll = async (req, res) => {
@@ -25,16 +24,11 @@ exports.getProductById = async (req, res) => {
 exports.createProduct = async (req, res) => {
   try {
     const { name, price, category, supplier, description, stock, isOnSale, salePrice } = req.body;
-    const files = req.files; // vjen nga multer
 
-    let imageUrls = [];
-    if (files && files.length > 0) {
-      // Ngarko secilën foto në S3 duke përdorur funksionin e thjeshtë
-      for (const file of files) {
-        const url = await uploadToS3(file);
-        imageUrls.push(url);
-      }
-    }
+    // 🔥 MULTER-S3 already uploads images
+    const imageUrls = req.files && req.files.length > 0
+      ? req.files.map(file => file.location)
+      : [];
 
     const product = new Product({
       name,
@@ -51,6 +45,7 @@ exports.createProduct = async (req, res) => {
 
     const saved = await product.save();
     res.status(201).json(saved);
+
   } catch (err) {
     console.error("Error creating product:", err);
     res.status(500).json({ error: err.message });
@@ -62,21 +57,19 @@ exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
-    const files = req.files;
 
-    if (files && files.length > 0) {
-      const newImageUrls = [];
-      for (const file of files) {
-        const url = await uploadToS3(file);
-        newImageUrls.push(url);
-      }
+    if (req.files && req.files.length > 0) {
+      const newImageUrls = req.files.map(file => file.location);
       updates.images = newImageUrls;
       updates.image = newImageUrls[0] || '';
     }
 
     const updated = await Product.findByIdAndUpdate(id, updates, { new: true });
+
     if (!updated) return res.status(404).json({ error: "Produkti nuk u gjet" });
+
     res.json(updated);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -86,9 +79,13 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
+
     const deleted = await Product.findByIdAndDelete(id);
+
     if (!deleted) return res.status(404).json({ error: "Produkti nuk u gjet" });
+
     res.json({ message: "Produkti u fshi" });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
