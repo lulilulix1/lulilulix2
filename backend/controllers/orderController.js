@@ -1,6 +1,5 @@
 const Order = require("../models/Order");
-// për momentin po e komentojmë Telegram-in krejt
-// const sendTelegram = require("../utils/telegramService");
+const sendTelegram = require("../utils/telegramService"); // ← ZHKOMMENTUAR
 
 // KRIJO POROSI (anonim ose me login)
 exports.create = async (req, res) => {
@@ -34,13 +33,13 @@ exports.create = async (req, res) => {
 
     console.log("✅ ORDER SAVED:", savedOrder);
 
-    // ===== TELEGRAM (OFF për debug) =====
-    /*
-    const productList = products
-      .map(p => `${p.name} x${p.quantity}`)
-      .join("\n");
+    // ===== TELEGRAM (AKTIVIZUAR) =====
+    try {
+      const productList = products
+        .map(p => `${p.name} x${p.quantity}`)
+        .join("\n");
 
-    const message = `
+      const message = `
 🛒 POROSI E RE
 
 Nr: ${savedOrder.orderNumber}
@@ -55,8 +54,12 @@ ${productList}
 💰 Totali: €${total}
 `;
 
-    sendTelegram(message);
-    */
+      await sendTelegram(message);
+      console.log("✅ Telegram notification sent for order:", savedOrder.orderNumber);
+    } catch (telegramError) {
+      console.error("❌ Telegram notification failed:", telegramError.message);
+      // Nuk e ndalojmë procesin nëse Telegram dështon
+    }
     // ===== END TELEGRAM =====
 
     // Response
@@ -116,6 +119,10 @@ exports.updateStatus = async (req, res) => {
       { status, updatedAt: new Date() },
       { new: true }
     );
+
+    if (!order) {
+      return res.status(404).json({ error: "Porosia nuk u gjet" });
+    }
 
     res.json(order);
 
